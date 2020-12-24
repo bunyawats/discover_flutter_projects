@@ -30,21 +30,23 @@ class SwitchConfig {
   });
 }
 
-class _Week17HomePageState extends State<Week17HomePage> {
-  static const String AP_MODE = 'AP_MODE';
-  static const String WIFI = 'WIFI';
-  static const String BLUETOOTH = 'BLUETOOTH';
+enum SettingMode {
+  apMode,
+  wifi,
+  bluetooth,
+}
 
-  Map<String, SwitchConfig> settingMap = {
-    AP_MODE: SwitchConfig(
+class _Week17HomePageState extends State<Week17HomePage> {
+  Map<SettingMode, SwitchConfig> settingMap = {
+    SettingMode.apMode: SwitchConfig(
       title: 'Airplane Mode',
       iconData: Icons.airplanemode_active,
     ),
-    WIFI: SwitchConfig(
+    SettingMode.wifi: SwitchConfig(
       title: 'Wi-Fi',
       iconData: Icons.wifi,
     ),
-    BLUETOOTH: SwitchConfig(
+    SettingMode.bluetooth: SwitchConfig(
       title: 'Bluetooth',
       iconData: Icons.bluetooth,
     ),
@@ -59,18 +61,18 @@ class _Week17HomePageState extends State<Week17HomePage> {
       body: Center(
         child: Column(
           children: <Widget>[
-            buildSwitchListTile(AP_MODE),
+            buildSwitchListTile(SettingMode.apMode),
             buildDivider(),
-            buildSwitchListTile(WIFI),
+            buildSwitchListTile(SettingMode.wifi),
             buildDivider(),
-            buildSwitchListTile(BLUETOOTH),
+            buildSwitchListTile(SettingMode.bluetooth),
           ],
         ),
       ),
     );
   }
 
-  SwitchListTile buildSwitchListTile(String mode) {
+  SwitchListTile buildSwitchListTile(SettingMode mode) {
     return SwitchListTile(
       title: Text(settingMap[mode].title),
       secondary: Icon(settingMap[mode].iconData),
