@@ -46,14 +46,12 @@ class Week14HomePage extends StatelessWidget {
               btLabel: 'Network Giffy',
               buildDialog: buildNetworkGiffyDialog,
             ),
-            buildDivider(),
             buildDialogButton(
               context: context,
               key: keys[2],
               btLabel: 'Flare Giffy',
               buildDialog: buildFlareGiffyDialog,
             ),
-            buildDivider(),
             buildDialogButton(
               context: context,
               key: keys[4],
@@ -66,25 +64,28 @@ class Week14HomePage extends StatelessWidget {
     );
   }
 
-  RaisedButton buildDialogButton({
+  Widget buildDialogButton({
     BuildContext context,
     Key key,
     String btLabel,
     Function buildDialog,
   }) {
-    return RaisedButton(
-      key: key,
-      color: Colors.teal,
-      child: Text(
-        btLabel,
-        style: TextStyle(color: Colors.white),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: RaisedButton(
+        key: key,
+        color: Colors.teal,
+        child: Text(
+          btLabel,
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (_) => buildDialog(),
+          );
+        },
       ),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (_) => buildDialog(),
-        );
-      },
     );
   }
 
@@ -96,15 +97,9 @@ class Week14HomePage extends StatelessWidget {
         fit: BoxFit.cover,
       ),
       entryAnimation: EntryAnimation.TOP_LEFT,
-      title: Text(
-        'Granny Eating Chocolate',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-      description: Text(
-        'This is a granny eating chocolate dialog box',
-        textAlign: TextAlign.center,
-      ),
+      title: buildTitleText('Granny Eating Chocolate'),
+      description:
+          buildDescText('This is a granny eating chocolate dialog box'),
       onOkButtonPressed: () {},
     );
   }
@@ -116,17 +111,10 @@ class Week14HomePage extends StatelessWidget {
         'assets/men_wearing_jacket.gif',
         fit: BoxFit.cover,
       ),
-      title: Text(
-        'Men Wearing Jackets',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
-      ),
+      title: buildTitleText('Men Wearing Jackets'),
       entryAnimation: EntryAnimation.BOTTOM_RIGHT,
-      description: Text(
-        'This is a men wearing jackets dialog box. This library helps you easily create fancy giffy dialog.',
-        textAlign: TextAlign.center,
-        style: TextStyle(),
-      ),
+      description: buildDescText(
+          'This is a men wearing jackets dialog box. This library helps you easily create fancy giffy dialog.'),
       onOkButtonPressed: () {},
     );
   }
@@ -136,20 +124,26 @@ class Week14HomePage extends StatelessWidget {
       key: keys[3],
       flarePath: 'assets/space_demo.flr',
       flareAnimation: 'loading',
-      title: Text(
-        'Space Reloading',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
-      ),
+      title: buildTitleText('Space Reloading'),
       entryAnimation: EntryAnimation.DEFAULT,
-      description: Text(
-        'This is a space reloading dialog box. This library helps you easily create fancy flare dialog.',
-        textAlign: TextAlign.center,
-        style: TextStyle(),
-      ),
+      description: buildDescText(
+          'This is a space reloading dialog box. This library helps you easily create fancy flare dialog.'),
       onOkButtonPressed: () {},
     );
   }
 
-  Divider buildDivider() => Divider(thickness: 1.2);
+  Text buildTitleText(String titleText) {
+    return Text(
+      titleText,
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600),
+    );
+  }
+
+  Text buildDescText(String descText) {
+    return Text(
+      descText,
+      textAlign: TextAlign.center,
+    );
+  }
 }
