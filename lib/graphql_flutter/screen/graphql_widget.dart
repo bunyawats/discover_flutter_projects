@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../graphql_operation/mutations/mutations.dart' as mutations;
 import '../graphql_operation/queries/read_repositories.dart' as queries;
 import '../helpers.dart' show withGenericHandling;
 import '../access_token.dart' show PERSONAL_ACCESS_TOKEN;
+import 'starrable_repository.dart';
 
 const bool ENABLE_WEBSOCKETS = false;
 
@@ -72,7 +72,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    print('initState');
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print(' build _MyHomePageState again ');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -118,6 +126,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           repository: repositories[index],
                           optimistic: result.source ==
                               QueryResultSource.optimisticResult,
+                          callBack: () {
+                            setState(() {
+                              nRepositories = nRepositories + 1;
+                            });
+                          },
                         );
                       },
                     ),
@@ -138,139 +151,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class StarrableRepository extends StatelessWidget {
-  const StarrableRepository({
-    Key key,
-    @required this.repository,
-    @required this.optimistic,
-  }) : super(key: key);
-
-  final Map<String, Object> repository;
-  final bool optimistic;
-
-  Map<String, Object> extractRepositoryData(Map<String, Object> data) {
-    final action = data['action'] as Map<String, Object>;
-    if (action == null) {
-      return null;
-    }
-    return action['starrable'] as Map<String, Object>;
-  }
-
-  bool get starred => repository['viewerHasStarred'] as bool;
-
-  Map<String, dynamic> get expectedResult => <String, dynamic>{
-        //'__typename': 'Query',
-        'action': {
-          '__typename': 'AddStarPayload',
-          'starrable': {
-            '__typename': 'Repository',
-            'id': repository['id'],
-            'viewerHasStarred': !starred,
-          }
-        }
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    return Mutation(
-      options: MutationOptions(
-        document: gql(starred ? mutations.removeStar : mutations.addStar),
-        update: (cache, result) {
-          if (result.hasException) {
-            print(result.exception);
-          } else {
-            final updated = {
-              ...repository,
-              ...extractRepositoryData(result.data),
-            };
-            cache.writeFragment(
-              Fragment(
-                document: gql(
-                  '''
-                  fragment fields on Repository {
-                    id
-                    name
-                    viewerHasStarred
-                  }
-                  ''',
-                ),
-              ).asRequest(idFields: {
-                '__typename': updated['__typename'],
-                'id': updated['id'],
-              }),
-              data: updated,
-              broadcast: false,
-            );
-          }
-        },
-        onError: (OperationException error) {
-          showDialog<AlertDialog>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(error.toString()),
-                actions: <Widget>[
-                  SimpleDialogOption(
-                    child: const Text('DISMISS'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              );
-            },
-          );
-        },
-        onCompleted: (dynamic resultData) {
-          showDialog<AlertDialog>(
-            context: context,
-            builder: (BuildContext context) {
-              var viewerHasStarred =
-                  extractRepositoryData(resultData)['viewerHasStarred'] as bool;
-
-              return AlertDialog(
-                title: Text(
-                  viewerHasStarred
-                      ? 'Thanks for your star!'
-                      : 'Sorry you changed your mind!',
-                ),
-                actions: <Widget>[
-                  SimpleDialogOption(
-                    child: const Text('DISMISS'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              );
-            },
-          );
-        },
-      ),
-      builder: (RunMutation toggleStar, QueryResult result) {
-        return ListTile(
-          leading: starred
-              ? const Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                )
-              : const Icon(Icons.star_border),
-          trailing: result.isLoading || optimistic
-              ? const CircularProgressIndicator()
-              : null,
-          title: Text(repository['name'] as String),
-          onTap: () {
-            toggleStar(
-              {'starrableId': repository['id']},
-              optimisticResult: expectedResult,
-            );
-          },
-        );
-      },
     );
   }
 }
