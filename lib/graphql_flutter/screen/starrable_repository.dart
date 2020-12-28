@@ -32,7 +32,7 @@ class StarrableRepository extends StatelessWidget {
           'starrable': {
             '__typename': 'Repository',
             'id': repository['id'],
-            'viewerHasStarred': !starred,
+            'viewerHasStarred': starred,
           }
         }
       };
@@ -56,8 +56,9 @@ class StarrableRepository extends StatelessWidget {
           onTap: () {
             toggleStar(
               {'starrableId': repository['id']},
-              optimisticResult: expectedResult,
+              // optimisticResult: expectedResult,
             );
+            print(' starred : $starred');
           },
         );
       },
@@ -74,7 +75,8 @@ class StarrableRepository extends StatelessWidget {
       },
       onCompleted: (dynamic resultData) {
         print('resultData : $resultData');
-        var msg = !extractRepositoryData(resultData)['viewerHasStarred'] as bool
+        repository['viewerHasStarred'] = extractRepositoryData(resultData)['viewerHasStarred'];
+        var msg = starred
             ? 'Thanks for your star!'
             : 'Sorry you changed your mind!';
         buildShowDialog(context, msg);
