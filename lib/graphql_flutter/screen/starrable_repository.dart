@@ -3,17 +3,28 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../graphql_operation/mutations/mutations.dart' as mutations;
 
-class StarrableRepository extends StatelessWidget {
-  const StarrableRepository({
-    Key key,
-    @required this.repository,
-    @required this.optimistic,
-    @required this.callBack,
-  }) : super(key: key);
+class StarrableRepository extends StatefulWidget {
+  StarrableRepository(
+    Map<String, Object> repository,
+    bool optimistic,
+  ) : _state = _StarrableRepositoryState(
+          repository,
+          optimistic,
+        );
 
-  final Map<String, Object> repository;
+  final _StarrableRepositoryState _state;
+  @override
+  _StarrableRepositoryState createState() => _state;
+}
+
+class _StarrableRepositoryState extends State<StarrableRepository> {
+  _StarrableRepositoryState(
+    this.repository,
+    this.optimistic,
+  );
+
+  Map<String, Object> repository;
   final bool optimistic;
-  final Function callBack;
 
   Map<String, Object> extractRepositoryData(Map<String, Object> data) {
     final action = data['action'] as Map<String, Object>;
@@ -23,10 +34,17 @@ class StarrableRepository extends StatelessWidget {
     return action['starrable'] as Map<String, Object>;
   }
 
-  bool get starred => repository['viewerHasStarred'] as bool;
+  //bool get starred => repository['viewerHasStarred'] as bool;
+
+  bool starred;
+
+  @override
+  void initState() {
+    starred = repository['viewerHasStarred'] as bool;
+    super.initState();
+  }
 
   Map<String, dynamic> get expectedResult => <String, dynamic>{
-        //'__typename': 'Query',
         'action': {
           '__typename': 'AddStarPayload',
           'starrable': {
@@ -56,9 +74,13 @@ class StarrableRepository extends StatelessWidget {
           onTap: () {
             toggleStar(
               {'starrableId': repository['id']},
-              // optimisticResult: expectedResult,
+              optimisticResult: expectedResult,
             );
-            print(' starred : $starred');
+
+            setState(() {
+              starred = !starred;
+              print('onTap starred : $starred');
+            });
           },
         );
       },
@@ -68,17 +90,16 @@ class StarrableRepository extends StatelessWidget {
   MutationOptions buildMutationOptions(BuildContext context) {
     return MutationOptions(
       document: gql(starred ? mutations.removeStar : mutations.addStar),
-
       onError: (OperationException error) {
         var msg = error.toString();
         buildShowDialog(context, msg);
       },
       onCompleted: (dynamic resultData) {
         print('resultData : $resultData');
-        repository['viewerHasStarred'] = extractRepositoryData(resultData)['viewerHasStarred'];
-        var msg = starred
-            ? 'Thanks for your star!'
-            : 'Sorry you changed your mind!';
+        repository['viewerHasStarred'] =
+            extractRepositoryData(resultData)['viewerHasStarred'];
+        var msg =
+            starred ? 'Thanks for your star!' : 'Sorry you changed your mind!';
         buildShowDialog(context, msg);
       },
     );
@@ -100,7 +121,6 @@ class StarrableRepository extends StatelessWidget {
           ],
         );
       },
-    ).then((value) => callBack());
+    );
   }
-
 }

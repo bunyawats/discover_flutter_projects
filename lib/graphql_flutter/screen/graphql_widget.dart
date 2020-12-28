@@ -115,14 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: repositories.length,
                       itemBuilder: (BuildContext context, int index) {
                         return StarrableRepository(
-                          repository: repositories[index],
-                          optimistic: result.source ==
-                              QueryResultSource.optimisticResult,
-                          callBack: () {
-                            setState(() {
-                              nRepositories = nRepositories + 1;
-                            });
-                          },
+                          repositories[index],
+                          result.source == QueryResultSource.optimisticResult,
                         );
                       },
                     ),
@@ -148,11 +142,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   QueryOptions buildQueryOptions() {
     return QueryOptions(
-              document: gql(queries.readRepositories),
-              variables: {
-                'nRepositories': nRepositories,
-              },
-              //pollInterval: 10,
-            );
+      document: gql(queries.readRepositories),
+      variables: {
+        'nRepositories': nRepositories,
+      },
+      //pollInterval: 10,
+    );
   }
 }
