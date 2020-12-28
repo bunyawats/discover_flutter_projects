@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../graphql_operation/queries/read_repositories.dart' as queries;
-import '../helpers.dart' show withGenericHandling, PERSONAL_ACCESS_TOKEN;
+import '../access_token.dart' show PERSONAL_ACCESS_TOKEN;
 
 class FetchMoreWidgetScreen extends StatelessWidget {
   const FetchMoreWidgetScreen() : super();
@@ -104,8 +104,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
 
                 // result.data can be either a [List<dynamic>] or a [Map<String, dynamic>]
+                final repositoriesMap = result.data['viewer']['repositories'];
                 final repositories =
-                    (result.data['search']['nodes'] as List<dynamic>);
+                repositoriesMap['nodes'] as List<dynamic>;
 
                 final Map pageInfo = result.data['search']['pageInfo'];
                 final String fetchMoreCursor = pageInfo['endCursor'];

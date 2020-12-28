@@ -4,7 +4,7 @@ import 'package:rxdart/subjects.dart';
 import '../graphql_operation/mutations/mutations.dart' as mutations;
 import '../graphql_operation/queries/read_repositories.dart' as queries;
 
-import '../helpers.dart' show withGenericHandling, PERSONAL_ACCESS_TOKEN;
+import '../access_token.dart' show PERSONAL_ACCESS_TOKEN;
 
 class Repo {
   const Repo({this.id, this.name, this.viewerHasStarred});
@@ -100,8 +100,9 @@ class Bloc {
     }
 
     // result.data can be either a [List<dynamic>] or a [Map<String, dynamic>]
+    final repositoriesMap = result.data['viewer']['repositories'];
     final repositories =
-        result.data['viewer']['repositories']['nodes'] as List<dynamic>;
+    repositoriesMap['nodes'] as List<dynamic>;
 
     _repoSubject.add(repositories
         .map((dynamic e) => Repo(

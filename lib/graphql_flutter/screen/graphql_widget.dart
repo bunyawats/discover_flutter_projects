@@ -3,7 +3,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../graphql_operation/mutations/mutations.dart' as mutations;
 import '../graphql_operation/queries/read_repositories.dart' as queries;
-import '../helpers.dart' show withGenericHandling, PERSONAL_ACCESS_TOKEN;
+import '../helpers.dart' show withGenericHandling;
+import '../access_token.dart' show PERSONAL_ACCESS_TOKEN;
 
 const bool ENABLE_WEBSOCKETS = false;
 
@@ -233,7 +234,7 @@ class StarrableRepository extends StatelessWidget {
 
               return AlertDialog(
                 title: Text(
-                  !viewerHasStarred
+                  viewerHasStarred
                       ? 'Thanks for your star!'
                       : 'Sorry you changed your mind!',
                 ),
