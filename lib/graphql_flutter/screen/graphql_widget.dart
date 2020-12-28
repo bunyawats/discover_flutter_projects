@@ -43,9 +43,7 @@ class GraphQLWidgetScreen extends StatelessWidget {
 
     return GraphQLProvider(
       client: client,
-      child: const CacheProvider(
-        child: MyHomePage(title: 'GraphQL Widget'),
-      ),
+      child: MyHomePage(title: 'GraphQL Widget'),
     );
   }
 }
@@ -99,13 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onSubmitted: changeQuery,
             ),
             Query(
-              options: QueryOptions(
-                document: gql(queries.readRepositories),
-                variables: {
-                  'nRepositories': nRepositories,
-                },
-                //pollInterval: 10,
-              ),
+              options: buildQueryOptions(),
               builder: withGenericHandling(
                 (QueryResult result, {refetch, fetchMore}) {
                   if (result.data == null && !result.hasException) {
@@ -152,5 +144,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  QueryOptions buildQueryOptions() {
+    return QueryOptions(
+              document: gql(queries.readRepositories),
+              variables: {
+                'nRepositories': nRepositories,
+              },
+              //pollInterval: 10,
+            );
   }
 }

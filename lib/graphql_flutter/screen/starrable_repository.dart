@@ -40,83 +40,7 @@ class StarrableRepository extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Mutation(
-      options: MutationOptions(
-        document: gql(starred ? mutations.removeStar : mutations.addStar),
-        update: (cache, result) {
-          if (result.hasException) {
-            print(result.exception);
-          } else {
-            final updated = {
-              ...repository,
-              ...extractRepositoryData(result.data),
-            };
-            cache.writeFragment(
-              Fragment(
-                document: gql(
-                  '''
-                  fragment fields on Repository {
-                    id
-                    name
-                    viewerHasStarred
-                  }
-                  ''',
-                ),
-              ).asRequest(idFields: {
-                '__typename': updated['__typename'],
-                'id': updated['id'],
-              }),
-              data: updated,
-              broadcast: false,
-            );
-          }
-        },
-        onError: (OperationException error) {
-          showDialog<AlertDialog>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(error.toString()),
-                actions: <Widget>[
-                  SimpleDialogOption(
-                    child: const Text('DISMISS'),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                  )
-                ],
-              );
-            },
-          );
-        },
-        onCompleted: (dynamic resultData) {
-
-          callBack();
-
-          // showDialog<AlertDialog>(
-          //   context: context,
-          //   builder: (BuildContext context) {
-          //     var viewerHasStarred =
-          //         extractRepositoryData(resultData)['viewerHasStarred'] as bool;
-          //
-          //     return AlertDialog(
-          //       title: Text(
-          //         viewerHasStarred
-          //             ? 'Thanks for your star!'
-          //             : 'Sorry you changed your mind!',
-          //       ),
-          //       actions: <Widget>[
-          //         SimpleDialogOption(
-          //           child: const Text('DISMISS'),
-          //           onPressed: () {
-          //             Navigator.of(context).pop();
-          //           },
-          //         )
-          //       ],
-          //     );
-          //   },
-          // ).then((value) => callBack());
-        },
-      ),
+      options: buildMutationOptions(context),
       builder: (RunMutation toggleStar, QueryResult result) {
         return ListTile(
           leading: starred
@@ -139,4 +63,42 @@ class StarrableRepository extends StatelessWidget {
       },
     );
   }
+
+  MutationOptions buildMutationOptions(BuildContext context) {
+    return MutationOptions(
+      document: gql(starred ? mutations.removeStar : mutations.addStar),
+
+      onError: (OperationException error) {
+        var msg = error.toString();
+        buildShowDialog(context, msg);
+      },
+      onCompleted: (dynamic resultData) {
+        print('resultData : $resultData');
+        var msg = !extractRepositoryData(resultData)['viewerHasStarred'] as bool
+            ? 'Thanks for your star!'
+            : 'Sorry you changed your mind!';
+        buildShowDialog(context, msg);
+      },
+    );
+  }
+
+  Future buildShowDialog(BuildContext context, String msg) {
+    return showDialog<AlertDialog>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(msg),
+          actions: <Widget>[
+            SimpleDialogOption(
+              child: const Text('DISMISS'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    ).then((value) => callBack());
+  }
+
 }
