@@ -115,8 +115,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       itemCount: repositories.length,
                       itemBuilder: (BuildContext context, int index) {
                         return StarrableRepository(
-                          repositories[index],
-                          result.source == QueryResultSource.optimisticResult,
+                          repository: repositories[index],
+                          optimistic: result.source ==
+                              QueryResultSource.optimisticResult,
                         );
                       },
                     ),

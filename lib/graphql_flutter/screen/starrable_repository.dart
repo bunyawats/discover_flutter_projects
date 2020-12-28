@@ -4,12 +4,12 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../graphql_operation/mutations/mutations.dart' as mutations;
 
 class StarrableRepository extends StatefulWidget {
-  StarrableRepository(
+  StarrableRepository({
     Map<String, Object> repository,
     bool optimistic,
-  ) : _state = _StarrableRepositoryState(
-          repository,
-          optimistic,
+  }) : _state = _StarrableRepositoryState(
+          repository: repository,
+          optimistic: optimistic,
         );
 
   final _StarrableRepositoryState _state;
@@ -18,10 +18,10 @@ class StarrableRepository extends StatefulWidget {
 }
 
 class _StarrableRepositoryState extends State<StarrableRepository> {
-  _StarrableRepositoryState(
+  _StarrableRepositoryState({
     this.repository,
     this.optimistic,
-  );
+  });
 
   Map<String, Object> repository;
   final bool optimistic;
